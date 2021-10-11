@@ -63,7 +63,7 @@
           :search="user"
           :items-per-page="6"
         >
-          <template v-slot:item.menu="">
+          <template v-slot:item.menu="{ item }">
             <v-menu transition="scale-transition" origin="center center">
               <template v-slot:activator="{ on, attrs }">
                 <v-icon v-bind="attrs" v-on="on">mdi-dots-vertical</v-icon>
@@ -89,30 +89,37 @@
                       </v-card-title>
                       <v-card-text>
                         <v-text-field
+                          v-model="item.userId"
                           label="UserId"
-                          v-model="todos.userId"
                         ></v-text-field
                         ><v-text-field
+                          v-model="item.id"
                           label="ID"
-                          v-model="todos.id"
                         ></v-text-field
                         ><v-text-field
+                          v-model="item.title"
                           label="Title"
-                          v-model="todos.title"
                         ></v-text-field
                         ><v-text-field
+                          v-model="item.completed"
                           label="Bio"
-                          v-model="todos.completed"
                         ></v-text-field>
                       </v-card-text>
                       <v-card-actions>
-                        <v-btn @click="Change">Save Changes</v-btn>
+                        <v-btn @click="Change(item)">Save Changes</v-btn>
                       </v-card-actions>
                     </v-card>
                   </v-dialog>
                 </v-list-item>
                 <v-list-item>
-                  <v-btn plain text rounded class="primary mr-4">Delete </v-btn>
+                  <v-btn
+                    plain
+                    text
+                    rounded
+                    class="primary mr-4"
+                    @click="Delete(item)"
+                    >Delete
+                  </v-btn>
                 </v-list-item>
               </v-list>
             </v-menu>
@@ -160,27 +167,25 @@ export default {
         .then((json) => this.User.push(json));
       this.dialog = false;
     },
-    delete() {
-      fetch("https://jsonplaceholder.typicode.com/todos", {
+    Delete(item) {
+      fetch(`https://jsonplaceholder.typicode.com/todos/${item.id}`, {
         method: "DELETE",
-        body: JSON.stringify(this.todos),
+        body: item,
         headers: {
           "Content-type": "application/json; charset=UTF-8",
         },
-      })
-        .then((response) => response.json())
-        .then((json) => (this.User = json));
+      });
     },
-    Change() {
+    Change(item) {
       fetch("https://jsonplaceholder.typicode.com/todos", {
         method: "PUT",
-        body: JSON.stringify(this.todos),
+        body: JSON.stringify(item),
         headers: {
           "Content-type": "application/json; charset=UTF-8",
         },
       })
         .then((response) => response.json())
-        .then((json) => (this.User = json));
+        .then((json) => this.User.push(json));
       this.dialog = false;
     },
   },
